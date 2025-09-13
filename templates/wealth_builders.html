@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wealth Builders - Financial Education</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -590,6 +591,411 @@
             animation: celebrate 0.5s ease-in-out;
         }
         
+        /* Trading Simulator Styles */
+        .trading-simulator {
+            background: rgba(26, 36, 58, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 60px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .simulator-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .simulator-header h2 {
+            font-size: 2.2rem;
+            color: var(--accent-light);
+            margin-bottom: 10px;
+        }
+        
+        .simulator-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .portfolio-panel, .stock-panel, .insights-panel {
+            background: rgba(10, 14, 23, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .panel-title {
+            font-size: 1.3rem;
+            color: var(--accent-light);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .portfolio-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .portfolio-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .portfolio-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .portfolio-value {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .holdings-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .holding-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .holding-info {
+            flex: 1;
+        }
+        
+        .holding-symbol {
+            font-weight: 600;
+            color: var(--accent-light);
+        }
+        
+        .holding-name {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        
+        .holding-quantity {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        
+        .holding-values {
+            text-align: right;
+        }
+        
+        .current-price {
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .current-value {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .profit-loss {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .profit-loss.profit {
+            color: #4ade80;
+        }
+        
+        .profit-loss.loss {
+            color: #f87171;
+        }
+        
+        .no-holdings {
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+            padding: 20px;
+        }
+        
+        .stock-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        .stock-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        
+        .stock-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .stock-symbol {
+            font-weight: 600;
+            color: var(--accent-light);
+            font-size: 0.9rem;
+        }
+        
+        .stock-name {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        
+        .btn-select {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s;
+        }
+        
+        .btn-select:hover {
+            background: var(--accent-light);
+        }
+        
+        .stock-details {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .stock-header h3 {
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+        
+        .stock-symbol {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .current-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            margin-bottom: 5px;
+        }
+        
+        .price-change {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .price-change.positive {
+            color: #4ade80;
+        }
+        
+        .price-change.negative {
+            color: #f87171;
+        }
+        
+        .stock-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn-trade {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-buy {
+            background: #4ade80;
+            color: white;
+        }
+        
+        .btn-buy:hover {
+            background: #22c55e;
+        }
+        
+        .btn-sell {
+            background: #f87171;
+            color: white;
+        }
+        
+        .btn-sell:hover {
+            background: #ef4444;
+        }
+        
+        .chart-container {
+            height: 200px;
+            margin-bottom: 20px;
+        }
+        
+        .ai-insights {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .ai-insight {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+            background: rgba(110, 59, 255, 0.1);
+        }
+        
+        .insight-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .insight-message {
+            color: var(--text);
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+        
+        .ai-insight.volatility {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .ai-insight.blue_chip {
+            border-left-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .ai-insight.stable {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        /* Trade Modal */
+        .trade-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .trade-modal-content {
+            background: var(--secondary);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 50px rgba(110, 59, 255, 0.5);
+        }
+        
+        .trade-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .trade-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .trade-input-group label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .trade-input-group input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+        
+        .trade-input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .trade-summary {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .trade-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .trade-summary-item:last-child {
+            margin-bottom: 0;
+            font-weight: 600;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 8px;
+        }
+        
+        .trade-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .trade-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .trade-buttons button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #cancel-trade {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+        
+        #cancel-trade:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
         /* --- START: Styles for Cyber Quiz --- */
         #cyber-quiz-container {
             font-family: 'Poppins', sans-serif;
@@ -722,6 +1128,16 @@
             .video-controls {
                 bottom: 10px;
                 right: 10px;
+            }
+            
+            .simulator-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .trade-modal-content {
+                width: 95%;
+                padding: 20px;
             }
         }
     </style>
@@ -999,6 +1415,115 @@
         </div>
     </div>
 
+    <!-- Trading Simulator Section -->
+    <div class="container">
+        <div class="trading-simulator" id="trading-simulator">
+            <div class="simulator-header">
+                <h2>🚀 Stock Trading Simulator</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 0;">Practice trading with virtual money in real market conditions</p>
+            </div>
+            
+            <div class="simulator-grid">
+                <!-- Portfolio Panel -->
+                <div class="portfolio-panel">
+                    <h3 class="panel-title">💼 Your Portfolio</h3>
+                    <div class="portfolio-summary">
+                        <div class="portfolio-item">
+                            <span class="portfolio-label">Cash Balance</span>
+                            <span class="portfolio-value" id="cash-balance">₹1,00,000</span>
+                        </div>
+                        <div class="portfolio-item">
+                            <span class="portfolio-label">Holdings Value</span>
+                            <span class="portfolio-value" id="holdings-value">₹0</span>
+                        </div>
+                        <div class="portfolio-item">
+                            <span class="portfolio-label">Total Value</span>
+                            <span class="portfolio-value" id="total-value">₹1,00,000</span>
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: var(--accent-light); margin: 20px 0 10px 0; font-size: 1rem;">Your Holdings</h4>
+                    <div class="holdings-list" id="holdings-list">
+                        <div class="no-holdings">No stocks in portfolio</div>
+                    </div>
+                </div>
+                
+                <!-- Stock Panel -->
+                <div class="stock-panel">
+                    <h3 class="panel-title">📈 Stock Trading</h3>
+                    
+                    <!-- Stock Selection -->
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 10px; font-size: 0.9rem;">Select a Stock:</h4>
+                        <div class="stock-list" id="stock-list">
+                            <!-- Stock list will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Stock Details -->
+                    <div id="stock-details" style="display: none;">
+                        <!-- Stock details will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Stock Chart -->
+                    <div class="chart-container" style="display: none;" id="chart-container">
+                        <canvas id="stock-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- AI Insights Panel -->
+                <div class="insights-panel">
+                    <h3 class="panel-title">🤖 Gullak Guru</h3>
+                    <div class="ai-insights" id="ai-insights">
+                        <div style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 20px;">
+                            Select a stock to get AI-powered insights!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Trade Modal -->
+    <div class="trade-modal" id="trade-modal">
+        <div class="trade-modal-content">
+            <h3 id="trade-title" style="color: var(--accent-light); margin-bottom: 20px; text-align: center;">Buy Stock</h3>
+            
+            <div class="trade-form">
+                <div class="trade-input-group">
+                    <label>Stock</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px;">
+                        <span id="trade-stock-name">-</span>
+                        <span id="trade-stock-price">₹0</span>
+                    </div>
+                </div>
+                
+                <div class="trade-input-group">
+                    <label for="trade-quantity">Quantity</label>
+                    <input type="number" id="trade-quantity" min="1" value="1">
+                </div>
+                
+                <div class="trade-summary">
+                    <div class="trade-summary-item">
+                        <span>Transaction Fee</span>
+                        <span id="trade-fees">₹20</span>
+                    </div>
+                    <div class="trade-summary-item">
+                        <span>Total Amount</span>
+                        <span id="trade-total">₹0</span>
+                    </div>
+                </div>
+                
+                <div class="trade-buttons">
+                    <button id="cancel-trade">Cancel</button>
+                    <button id="confirm-trade" class="btn-trade btn-buy">Buy</button>
+                </div>
+            </div>
+            
+            <input type="hidden" id="trade-type" value="buy">
+        </div>
+    </div>
+
     <div class="container">
         <section class="final-cta">
             <h2>Ready to Explore the Financial Universe?</h2>
@@ -1209,5 +1734,8 @@
         cq_restartButton.addEventListener("click", startCyberQuiz);
         // --- END: Cyber Quiz Script ---
     </script>
+    
+    <!-- Trading Simulator Script -->
+    <script src="{{ url_for('static', filename='js/trading-simulator.js') }}"></script>
 </body>
 </html>
